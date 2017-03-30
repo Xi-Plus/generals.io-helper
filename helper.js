@@ -295,21 +295,21 @@ function gatherarea() {
 				visited[now.px-1][now.py] = true;
 				dis--;
 			}
-			if (!visited[now.px][now.py+1]) {
+			if (dis && !visited[now.px][now.py+1]) {
 				var temp = {px: now.px, py:now.py+1};
 				path.push({px: temp.px, py:temp.py, d:3});
 				queue.push(temp);
 				visited[now.px][now.py+1] = true;
 				dis--;
 			}
-			if (!visited[now.px+1][now.py]) {
+			if (dis && !visited[now.px+1][now.py]) {
 				var temp = {px: now.px+1, py:now.py};
 				path.push({px: temp.px, py:temp.py, d:0});
 				queue.push(temp);
 				visited[now.px+1][now.py] = true;
 				dis--;
 			}
-			if (!visited[now.px][now.py-1]) {
+			if (dis && !visited[now.px][now.py-1]) {
 				var temp = {px: now.px, py:now.py-1};
 				path.push({px: temp.px, py:temp.py, d:1});
 				queue.push(temp);
