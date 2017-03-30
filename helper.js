@@ -1,5 +1,5 @@
 var movetocanpass = [70, 71, 72, 80, 90];
-var gatherareacan = [70, 71, 72];
+var gatherareacan = [70, 71, 72, 80, 90];
 var expandmy = [70, 71, 72];
 var expandneutral = [90];
 var expandattack = [91];
@@ -162,12 +162,12 @@ document.all["game-page"].appendChild(node);
 var node = document.createElement("div");
 node.id = "movetodiv";
 document.all.helper.appendChild(node);
-document.all.movetodiv.innerHTML = "<button style='padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;' onclick='movetostart();'>移動到指定地方</button>";
+document.all.movetodiv.innerHTML = '<button id="movetobtn" style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;" onclick="movetostart();">移動到指定地方</button>';
 
 var node = document.createElement("div");
 node.id = "gatherdiv";
 document.all.helper.appendChild(node);
-document.all.gatherdiv.innerHTML = "<button style='padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;' onclick='gatherarea();'>聚集區域兵力</button>";
+document.all.gatherdiv.innerHTML = '<button id="gatherareabtn" style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;" onclick="gatherareastart();">聚集區域兵力</button>';
 
 var node = document.createElement("div");
 node.id = "expanddiv";
@@ -198,17 +198,27 @@ function choose(x, y) {
 	log("點擊: "+x+","+y);
 	if (action == "moveto") {
 		moveto(actionpx, actionpy, x, y);
+	} else if (action == "gatherarea") {
+		gatherarea(x, y);
 	}
 }
 function movetostart() {
-	var selected = document.getElementsByClassName("selected")[0]
-	if (selected === undefined) {
-		log("移動至此: 請先選擇起始點", "color: red;font-weight: bold;");
-		return;
+	if (action === "") {
+		var selected = document.getElementsByClassName("selected")[0]
+		if (selected === undefined) {
+			log("移動至此: 請先選擇起始點", "color: red;font-weight: bold;");
+			return;
+		}
+		movetobtn.style.background = "lightseagreen";
+		actionpx = selected.px;
+		actionpy = selected.py;
+		action = "moveto";
+		log("移動至此: 請選擇終點");
+	} else if (action === "moveto") {
+		movetobtn.style.background = "";
+		action = "";
+		log("移動至此: 動作取消", "color: blue;");
 	}
-	actionpx = selected.px;
-	actionpy = selected.py;
-	action = "moveto";
 }
 function moveto(x1, y1, x2, y2) {
 	log("移動至此: from "+x1+","+y1+" to "+x2+","+y2);
@@ -258,6 +268,7 @@ function moveto(x1, y1, x2, y2) {
 						y--; break;
 				}
 			}
+			movetobtn.style.background = "";
 			action = "";
 			return;
 		}
@@ -287,17 +298,22 @@ function moveto(x1, y1, x2, y2) {
 		}
 	}
 	log("移動至此: 找不到路徑", "color: red;font-weight: bold;");
+	movetobtn.style.background = "";
 	action = "";
 }
-function gatherarea() {
-	var selected = document.getElementsByClassName("selected")[0]
-	if (selected === undefined) {
-		log("聚集兵力: 請先選擇目標", "color: red;font-weight: bold;");
-		return;
+function gatherareastart() {
+	if (action === "") {
+		gatherareabtn.style.background = "lightseagreen";
+		action = "gatherarea";
+		log("聚集兵力: 請選擇目標");
+	} else if (action === "gatherarea") {
+		gatherareabtn.style.background = "";
+		action = "";
+		log("聚集兵力: 動作取消", "color: blue;");
 	}
+}
+function gatherarea(px, py) {
 	if ((dis = prompt("多少步數?", "20")) !== null) {
-		px = selected.px;
-		py = selected.py;
 		update();
 		var visited = [];
 		for (var i = 0; i < height; i++) {
@@ -360,7 +376,11 @@ function gatherarea() {
 		for (var i = path.length - 1; i >= 0; i--) {
 			move(path[i].px, path[i].py, path[i].d);
 		}
+	} else {
+		log("聚集兵力: 動作取消", "color: blue;");
 	}
+	gatherareabtn.style.background = "";
+	action = "";
 }
 function expandstart() {
 	expand(expandchkattack.checked, expandchkhalf.checked);
