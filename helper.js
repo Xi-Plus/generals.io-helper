@@ -4,6 +4,8 @@ var width = mapel.children[0].children.length;
 var mymap = [];
 for (var i = 0; i < height; i++) {
 	mymap[i] = [];
+	mymap[i][-1] = [];
+	mymap[i][-1]["type"] = -1;
 	for (var j = 0; j < width; j++) {
 		mapel.children[i].children[j].px = i;
 		mapel.children[i].children[j].py = j;
@@ -15,6 +17,18 @@ for (var i = 0; i < height; i++) {
 		mymap[i][j] = [];
 		mymap[i][j]["type"] = 0;
 	}
+	mymap[i][width] = [];
+	mymap[i][width]["type"] = -1;
+}
+mymap[-1] = [];
+for (var j = 0; j < width; j++) {
+	mymap[-1][j] = [];
+	mymap[-1][j]["type"] = -1;
+}
+mymap[height] = [];
+for (var j = 0; j < width; j++) {
+	mymap[height][j] = [];
+	mymap[-1][j]["type"] = -1;
 }
 function update() {
 	for (var i = 0; i < height; i++) {
@@ -117,6 +131,11 @@ var node = document.createElement("div");
 node.id = "gatherdiv";
 document.all.helper.appendChild(node);
 document.all.gatherdiv.innerHTML = "<button style='padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;' onclick='gatherarea();'>聚集區域兵力</button>";
+
+var node = document.createElement("div");
+node.id = "expanddiv";
+document.all.helper.appendChild(node);
+document.all.expanddiv.innerHTML = "<button style='padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;' onclick='expand();'>擴散</button>";
 
 var action = "";
 var actionpx, actionpy;
@@ -284,6 +303,53 @@ function gatherarea() {
 		}
 		for (var i = path.length - 1; i >= 0; i--) {
 			move(path[i].px, path[i].py, path[i].d);
+		}
+	}
+}
+function expand(half = false) {
+	update();
+	for (var i = 0; i < height; i++) {
+		for (var j = 0; j < width; j++) {
+			if ([10, 12].indexOf(mymap[i][j]["type"]) !== -1) {
+				if (mymap[i][j]["army"] < 2) {
+					continue;
+				}
+				var d = [];
+				if ([0].indexOf(mymap[i-1][j]["type"]) !== -1) {
+					d.push(0);
+				}
+				if ([0].indexOf(mymap[i][j+1]["type"]) !== -1) {
+					console.log("empty "+(i)+","+(j+1));
+					if ([10, 12].indexOf(mymap[i][j+2]["type"]) === -1 &&
+						[10, 12].indexOf(mymap[i+1][j+1]["type"]) === -1) {
+						d.push(1);
+					}
+				}
+				if ([0].indexOf(mymap[i+1][j]["type"]) !== -1) {
+					if ([10, 12].indexOf(mymap[i+1][j+1]["type"]) === -1 &&
+						[10, 12].indexOf(mymap[i+2][j]["type"]) === -1) {
+						d.push(2);
+					}
+				}
+				if ([0].indexOf(mymap[i][j-1]["type"]) !== -1) {
+					d.push(3);
+				}
+				var ishalf = half;
+				if (d.length > 1) {
+					ishalf = true;
+				}
+				for (var k = 0; k < d.length; k++) {
+					if (mymap[i][j]["army"] < 2) {
+						break;
+					}
+					move(i, j, d[k], ishalf);
+					if (ishalf) {
+						mymap[i][j]["army"] -= Math.floor(mymap[i][j]["army"] / 2);
+					} else {
+						mymap[i][j]["army"] = 1;
+					}
+				}
+			}
 		}
 	}
 }
