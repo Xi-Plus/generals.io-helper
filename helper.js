@@ -1,6 +1,30 @@
+var movetocanpass = [70, 71, 72, 80, 90];
+var gatherareacan = [70, 71, 72];
+var expandmy = [70, 71, 72];
+var expandneutral = [90];
+var expandattack = [91];
+
 var mapel = document.getElementById("map").children[0];
 var height = mapel.children.length;
 var width = mapel.children[0].children.length;
+var mycolor = document.getElementsByClassName("general")[0].classList[0];
+var othercolor = [];
+
+for (var i = document.getElementsByClassName("leaderboard-name").length - 1; i >= 0; i--) {
+	var color = document.getElementsByClassName("leaderboard-name")[i].classList[1];
+	if (color !== mycolor) {
+		othercolor.push(color);
+	}
+}
+var usercnt = othercolor.length;
+for (var i = 0; i < usercnt; i++) {
+	movetocanpass.push(i*10);
+	movetocanpass.push(i*10+1);
+	movetocanpass.push(i*10+2);
+	expandattack.push(i*10);
+	expandattack.push(i*10+1);
+	expandattack.push(i*10+2);
+}
 var mymap = [];
 for (var i = 0; i < height; i++) {
 	mymap[i] = [];
@@ -15,7 +39,6 @@ for (var i = 0; i < height; i++) {
 			choose(el.px, el.py);
 		});
 		mymap[i][j] = [];
-		mymap[i][j]["type"] = 0;
 	}
 	mymap[i][width] = [];
 	mymap[i][width]["type"] = -1;
@@ -34,33 +57,38 @@ function update() {
 	for (var i = 0; i < height; i++) {
 		for (var j = 0; j < width; j++) {
 			var classes = document.all["land_"+i+"_"+j].classList;
-			// 0x中立 1x我方 2x敵方
-			// 0土地 1山脈 2城堡 3主堡 9山脈or城堡
 			mymap[i][j]["type"] = 0;
 			mymap[i][j]["army"] = document.all["land_"+i+"_"+j].innerText;
-			if (classes.contains("selectable")) {
-				mymap[i][j]["type"] += 10;
+			var neutral = true;
+			for (var k = 0; k < usercnt; k++) {
+				if (classes.contains(othercolor[k])) {
+					mymap[i][j]["type"] += k*10;
+					neutral = false;
+					break;
+				}
 			}
-			if (classes.contains("neutral") && !classes.contains("selectable")) {
-				mymap[i][j]["type"] += 20;
+			if (neutral && classes.contains(mycolor)) {
+				mymap[i][j]["type"] += 70;
+				neutral = false;
 			}
-			if (classes.contains("mountain")) {
-				mymap[i][j]["type"] += 1;
+			if (neutral && classes.contains("fog")) {
+				mymap[i][j]["type"] += 80;
+				neutral = false;
 			}
-			if (classes.contains("obstacle")) {
-				mymap[i][j]["type"] += 9;
+			if (neutral) {
+				mymap[i][j]["type"] += 90;
 			}
 			if (classes.contains("city")) {
-				mymap[i][j]["type"] += 2;
-				if (!classes.contains("selectable")) {
-					mymap[i][j]["type"] += 20;
-				}
+				mymap[i][j]["type"] += 1;
 			}
 			if (classes.contains("general")) {
+				mymap[i][j]["type"] += 2;
+			}
+			if (classes.contains("mountain")) {
 				mymap[i][j]["type"] += 3;
-				if (!classes.contains("selectable")) {
-					mymap[i][j]["type"] += 20;
-				}
+			}
+			if (classes.contains("obstacle")) {
+				mymap[i][j]["type"] += 4;
 			}
 		}
 	}
@@ -144,7 +172,9 @@ document.all.gatherdiv.innerHTML = "<button style='padding: 0px 0px; margin: 5px
 var node = document.createElement("div");
 node.id = "expanddiv";
 document.all.helper.appendChild(node);
-document.all.expanddiv.innerHTML = "<button style='padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;' onclick='expand();'>擴散</button>";
+document.all.expanddiv.innerHTML = '<button style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 50%;" onclick="expandstart();">擴散</button>'+
+	'<label><input type="checkbox" id="expandchkattack">攻擊</label>'+
+	'<label><input type="checkbox" id="expandchkhalf">半兵</label>';
 
 var node = document.createElement("div");
 node.id = "logdiv";
@@ -188,10 +218,10 @@ function moveto(x1, y1, x2, y2) {
 		visited[i] = [];
 		visited[i][-1] = true;
 		for (var j = 0; j < width; j++) {
-			if ([1, 2, 9, 22, 23].indexOf(mymap[i][j]["type"]) === -1) {
-				visited[i][j] = false;
-			} else {
+			if (movetocanpass.indexOf(mymap[i][j]["type"]) === -1) {
 				visited[i][j] = true;
+			} else {
+				visited[i][j] = false;
 			}
 		}
 		visited[i][width] = true;
@@ -274,7 +304,7 @@ function gatherarea() {
 			visited[i] = [];
 			visited[i][-1] = true;
 			for (var j = 0; j < width; j++) {
-				if ([10, 12].indexOf(mymap[i][j]["type"]) === -1) {
+				if (gatherareacan.indexOf(mymap[i][j]["type"]) === -1) {
 					visited[i][j] = true;
 				} else {
 					visited[i][j] = false;
@@ -332,37 +362,57 @@ function gatherarea() {
 		}
 	}
 }
-function expand(half = false) {
+function expandstart() {
+	expand(expandchkattack.checked, expandchkhalf.checked);
+}
+function expand(attack = false, half = false) {
+	log("擴散: 攻擊"+attack+" 半兵"+half);
 	update();
 	var count = 0;
 	for (var i = 0; i < height; i++) {
 		for (var j = 0; j < width; j++) {
-			if ([10, 12, 13].indexOf(mymap[i][j]["type"]) !== -1) {
+			if (expandmy.indexOf(mymap[i][j]["type"]) !== -1) {
 				if (mymap[i][j]["army"] < 2) {
 					continue;
 				}
 				var d = [];
-				if ([0].indexOf(mymap[i-1][j]["type"]) !== -1) {
-					d.push(0);
+				if (expandneutral.indexOf(mymap[i-1][j]["type"]) !== -1) {
+					d.push([0, true]);
+				} else if (attack && expandattack.indexOf(mymap[i-1][j]["type"]) !== -1) {
+					if (mymap[i][j]["army"] - mymap[i-1][j]["army"] >= 2) {
+						d.push([0, false]);
+					}
 				}
-				if ([0].indexOf(mymap[i][j+1]["type"]) !== -1) {
-					if (([10, 12, 13].indexOf(mymap[i][j+2]["type"]) === -1 ||
+				if (expandneutral.indexOf(mymap[i][j+1]["type"]) !== -1) {
+					if ((expandmy.indexOf(mymap[i][j+2]["type"]) === -1 ||
 						mymap[i][j+2]["army"] < 2) &&
-						([10, 12, 13].indexOf(mymap[i+1][j+1]["type"]) === -1 ||
+						(expandmy.indexOf(mymap[i+1][j+1]["type"]) === -1 ||
 						mymap[i+1][j+1]["army"] < 2)) {
-						d.push(1);
+						d.push([1, true]);
+					}
+				} else if (attack && expandattack.indexOf(mymap[i][j+1]["type"]) !== -1) {
+					if (mymap[i][j]["army"] - mymap[i][j+1]["army"] >= 2) {
+						d.push([1, false]);
 					}
 				}
-				if ([0].indexOf(mymap[i+1][j]["type"]) !== -1) {
-					if (([10, 12, 13].indexOf(mymap[i+1][j+1]["type"]) === -1 ||
+				if (expandneutral.indexOf(mymap[i+1][j]["type"]) !== -1) {
+					if ((expandmy.indexOf(mymap[i+1][j+1]["type"]) === -1 ||
 						mymap[i+1][j+1]["army"] < 2) &&
-						([10, 12, 13].indexOf(mymap[i+2][j]["type"]) === -1 ||
+						(expandmy.indexOf(mymap[i+2][j]["type"]) === -1 ||
 						mymap[i+2][j]["army"] < 2)) {
-						d.push(2);
+						d.push([2, true]);
+					}
+				} else if (attack && expandattack.indexOf(mymap[i+1][j]["type"]) !== -1) {
+					if (mymap[i][j]["army"] - mymap[i+1][j]["army"] >= 2) {
+						d.push([2, false]);
 					}
 				}
-				if ([0].indexOf(mymap[i][j-1]["type"]) !== -1) {
-					d.push(3);
+				if (expandneutral.indexOf(mymap[i][j-1]["type"]) !== -1) {
+					d.push([3, true]);
+				} else if (attack && expandattack.indexOf(mymap[i][j-1]["type"]) !== -1) {
+					if (mymap[i][j]["army"] - mymap[i][j-1]["army"] >= 2) {
+						d.push([3, false]);
+					}
 				}
 				var ishalf = half;
 				if (d.length > 1) {
@@ -372,7 +422,7 @@ function expand(half = false) {
 					if (mymap[i][j]["army"] < 2) {
 						break;
 					}
-					move(i, j, d[k], ishalf);
+					move(i, j, d[k][0], ishalf&d[k][1]);
 					count ++;
 					if (ishalf) {
 						mymap[i][j]["army"] -= Math.floor(mymap[i][j]["army"] / 2);
