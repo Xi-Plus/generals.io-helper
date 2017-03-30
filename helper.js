@@ -205,6 +205,7 @@ function moveto(x1, y1, x2, y2) {
 			var x = x1;
 			var y = y1;
 			var ds = now.path.length;
+			log("移動至此: 需要 "+ds+" 步", "color: blue;");
 			for (var i = 0; i < ds; i++) {
 				move(x, y, now.path[i]);
 				switch (now.path[i]) {
@@ -258,7 +259,6 @@ function gatherarea() {
 	if ((dis = prompt("多少步數?", "20")) !== null) {
 		px = selected.px;
 		py = selected.py;
-		log("聚集兵力: "+px+","+py+" 步數 "+dis);
 		update();
 		var visited = [];
 		for (var i = 0; i < height; i++) {
@@ -317,6 +317,7 @@ function gatherarea() {
 				dis--;
 			}
 		}
+		log("聚集兵力: "+px+","+py+" 步數 "+path.length, "color: blue;");
 		for (var i = path.length - 1; i >= 0; i--) {
 			move(path[i].px, path[i].py, path[i].d);
 		}
@@ -324,6 +325,7 @@ function gatherarea() {
 }
 function expand(half = false) {
 	update();
+	var count = 0;
 	for (var i = 0; i < height; i++) {
 		for (var j = 0; j < width; j++) {
 			if ([10, 12].indexOf(mymap[i][j]["type"]) !== -1) {
@@ -358,6 +360,7 @@ function expand(half = false) {
 						break;
 					}
 					move(i, j, d[k], ishalf);
+					count ++;
 					if (ishalf) {
 						mymap[i][j]["army"] -= Math.floor(mymap[i][j]["army"] / 2);
 					} else {
@@ -367,4 +370,5 @@ function expand(half = false) {
 			}
 		}
 	}
+	log("擴散: 需要 "+count+" 步", "color: blue;");
 }
