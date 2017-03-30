@@ -41,6 +41,9 @@ function update() {
 			if (classes.contains("selectable")) {
 				mymap[i][j]["type"] += 10;
 			}
+			if (classes.contains("neutral") && !classes.contains("selectable")) {
+				mymap[i][j]["type"] += 20;
+			}
 			if (classes.contains("mountain")) {
 				mymap[i][j]["type"] += 1;
 			}
@@ -49,9 +52,15 @@ function update() {
 			}
 			if (classes.contains("city")) {
 				mymap[i][j]["type"] += 2;
+				if (!classes.contains("selectable")) {
+					mymap[i][j]["type"] += 20;
+				}
 			}
 			if (classes.contains("general")) {
 				mymap[i][j]["type"] += 3;
+				if (!classes.contains("selectable")) {
+					mymap[i][j]["type"] += 20;
+				}
 			}
 		}
 	}
