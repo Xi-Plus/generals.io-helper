@@ -337,7 +337,7 @@ function expand(half = false) {
 	var count = 0;
 	for (var i = 0; i < height; i++) {
 		for (var j = 0; j < width; j++) {
-			if ([10, 12].indexOf(mymap[i][j]["type"]) !== -1) {
+			if ([10, 12, 13].indexOf(mymap[i][j]["type"]) !== -1) {
 				if (mymap[i][j]["army"] < 2) {
 					continue;
 				}
@@ -346,14 +346,18 @@ function expand(half = false) {
 					d.push(0);
 				}
 				if ([0].indexOf(mymap[i][j+1]["type"]) !== -1) {
-					if ([10, 12].indexOf(mymap[i][j+2]["type"]) === -1 &&
-						[10, 12].indexOf(mymap[i+1][j+1]["type"]) === -1) {
+					if (([10, 12, 13].indexOf(mymap[i][j+2]["type"]) === -1 ||
+						mymap[i][j+2]["army"] < 2) &&
+						([10, 12, 13].indexOf(mymap[i+1][j+1]["type"]) === -1 ||
+						mymap[i+1][j+1]["army"] < 2)) {
 						d.push(1);
 					}
 				}
 				if ([0].indexOf(mymap[i+1][j]["type"]) !== -1) {
-					if ([10, 12].indexOf(mymap[i+1][j+1]["type"]) === -1 &&
-						[10, 12].indexOf(mymap[i+2][j]["type"]) === -1) {
+					if (([10, 12, 13].indexOf(mymap[i+1][j+1]["type"]) === -1 ||
+						mymap[i+1][j+1]["army"] < 2) &&
+						([10, 12, 13].indexOf(mymap[i+2][j]["type"]) === -1 ||
+						mymap[i+2][j]["army"] < 2)) {
 						d.push(2);
 					}
 				}
