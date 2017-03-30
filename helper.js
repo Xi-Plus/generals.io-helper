@@ -90,11 +90,11 @@ function move(x, y, d, half = false) {
 			end = document.all["land_"+x+"_"+(y-1)];
 			break;
 		default:
-			console.log("wrong d");
+			log("move: wrong d", "color: red;font-weight: bold;");
 			return;
 	}
 	if (!start.classList.contains("selectable") && !end.classList.contains("attackable")) {
-		console.log("cannot attack");
+		log("move: cannot attack "+x+","+y+" "+d, "color: red;font-weight: bold;");
 		return;
 	}
 	if (start.classList.contains("attackable")) {
@@ -137,10 +137,26 @@ node.id = "expanddiv";
 document.all.helper.appendChild(node);
 document.all.expanddiv.innerHTML = "<button style='padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;' onclick='expand();'>擴散</button>";
 
+var node = document.createElement("div");
+node.id = "logdiv";
+node.style.height = "150px";
+node.style.width = "300px";
+node.style.overflow = "scroll";
+document.all.helper.appendChild(node);
+document.all.logdiv.innerHTML = "<ul id='loglist'></ul><div id='logend'>";
+
+function log(text, style) {
+	var node = document.createElement("li");
+	node.style = style;
+	node.innerText = text;
+	document.all.loglist.appendChild(node);
+	logend.scrollIntoView();
+}
+
 var action = "";
 var actionpx, actionpy;
 function choose(x, y) {
-	console.log("choose "+x+","+y);
+	log("點擊: "+x+","+y);
 	if (action == "moveto") {
 		moveto(actionpx, actionpy, x, y);
 	}
@@ -148,7 +164,7 @@ function choose(x, y) {
 function movetostart() {
 	var selected = document.getElementsByClassName("selected")[0]
 	if (selected === undefined) {
-		console.log("choose first");
+		log("移動至此: 請先選擇起始點", "color: red;font-weight: bold;");
 		return;
 	}
 	actionpx = selected.px;
@@ -156,7 +172,7 @@ function movetostart() {
 	action = "moveto";
 }
 function moveto(x1, y1, x2, y2) {
-	console.log("move from "+x1+","+y1+" to "+x2+","+y2);
+	log("移動至此: from "+x1+","+y1+" to "+x2+","+y2);
 	update();
 	var visited = [];
 	for (var i = 0; i < height; i++) {
@@ -230,19 +246,19 @@ function moveto(x1, y1, x2, y2) {
 			visited[now.px][now.py-1] = true;
 		}
 	}
-	alert("not found");
+	log("移動至此: 找不到路徑", "color: red;font-weight: bold;");
 	action = "";
 }
 function gatherarea() {
 	var selected = document.getElementsByClassName("selected")[0]
 	if (selected === undefined) {
-		console.log("choose first");
+		log("聚集兵力: 請先選擇目標", "color: red;font-weight: bold;");
 		return;
 	}
 	if ((dis = prompt("多少步數?", "20")) !== null) {
 		px = selected.px;
 		py = selected.py;
-		console.log("gatherarea "+px+","+py+" 步數 "+dis);
+		log("聚集兵力: "+px+","+py+" 步數 "+dis);
 		update();
 		var visited = [];
 		for (var i = 0; i < height; i++) {
@@ -319,7 +335,6 @@ function expand(half = false) {
 					d.push(0);
 				}
 				if ([0].indexOf(mymap[i][j+1]["type"]) !== -1) {
-					console.log("empty "+(i)+","+(j+1));
 					if ([10, 12].indexOf(mymap[i][j+2]["type"]) === -1 &&
 						[10, 12].indexOf(mymap[i+1][j+1]["type"]) === -1) {
 						d.push(1);
