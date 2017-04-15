@@ -162,17 +162,17 @@ document.all["game-page"].appendChild(node);
 var node = document.createElement("div");
 node.id = "movetodiv";
 document.all.helper.appendChild(node);
-document.all.movetodiv.innerHTML = '<button id="movetobtn" style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;" onclick="movetostart();">移動到指定地方</button>';
+document.all.movetodiv.innerHTML = '<button id="movetobtn" style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;" onclick="movetostart();">移動到指定地方 [Z]</button>';
 
 var node = document.createElement("div");
 node.id = "gatherdiv";
 document.all.helper.appendChild(node);
-document.all.gatherdiv.innerHTML = '<button id="gatherareabtn" style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;" onclick="gatherareastart();">聚集區域兵力</button>';
+document.all.gatherdiv.innerHTML = '<button id="gatherareabtn" style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 100%;" onclick="gatherareastart();">聚集區域兵力 [X]</button>';
 
 var node = document.createElement("div");
 node.id = "expanddiv";
 document.all.helper.appendChild(node);
-document.all.expanddiv.innerHTML = '<button style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 50%;" onclick="expandstart();">擴散</button>'+
+document.all.expanddiv.innerHTML = '<button style="padding: 0px 0px; margin: 5px; font-size: 18px; width: 50%;" onclick="expandstart();">擴散 [C]</button>'+
 	'<label><input type="checkbox" id="expandchkattack">攻擊</label>'+
 	'<label><input type="checkbox" id="expandchkhalf">半兵</label>';
 
@@ -455,3 +455,17 @@ function expand(attack = false, half = false) {
 	}
 	log("擴散: 需要 "+count+" 步", "color: blue;");
 }
+document.onkeydown = function (e) {
+	switch (e.keyCode) {
+		case 90:
+			movetostart();
+			break;
+		case 88:
+			gatherareastart();
+			break;
+		case 67:
+			expandstart();
+			break;
+
+	}
+};
