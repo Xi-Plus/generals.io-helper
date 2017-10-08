@@ -10,6 +10,11 @@ var width = mapel.children[0].children.length;
 var mycolor = document.getElementsByClassName("general")[0].classList[0];
 var othercolor = [];
 
+var style = document.createElement('style');
+style.id = "infoel";
+style.innerHTML = '.info{position: absolute; top: 0; left: 0; width: 100%; height: 100%; line-height: 30px; background: #000; }';
+document.head.appendChild(style);
+
 for (var i = document.getElementsByClassName("leaderboard-name").length - 1; i >= 0; i--) {
 	var color = document.getElementsByClassName("leaderboard-name")[i].classList[1];
 	if (color !== mycolor) {
@@ -31,6 +36,8 @@ for (var i = 0; i < height; i++) {
 	mymap[i][-1] = [];
 	mymap[i][-1]["type"] = -1;
 	for (var j = 0; j < width; j++) {
+		var node = document.createElement("span");
+		node.id = "info_"+i+"_"+j;
 		mapel.children[i].children[j].px = i;
 		mapel.children[i].children[j].py = j;
 		mapel.children[i].children[j].id = "land_"+i+"_"+j;
