@@ -4,7 +4,7 @@ var expandmy = [70, 71, 72];
 var expandneutral = [90];
 var expandattack = [91];
 
-var mapel = document.getElementById("map").children[0];
+var mapel = document.getElementById("gameMap").children[0];
 var height = mapel.children.length;
 var width = mapel.children[0].children.length;
 var mycolor = document.getElementsByClassName("general")[0].classList[0];
